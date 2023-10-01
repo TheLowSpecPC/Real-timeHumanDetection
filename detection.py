@@ -1,9 +1,10 @@
 import cv2
 import imutils
-import os
+from pathlib import Path
 
 HOGCV = cv2.HOGDescriptor()
 HOGCV.setSVMDetector(cv2.HOGDescriptor.getDefaultPeopleDetector())
+out_img = str(Path.home() / "Downloads/image.jpg")
 
 
 def detect(frame):
@@ -20,31 +21,28 @@ def detect(frame):
     cv2.imshow('output', frame)
     return frame
 
-def detectByCamera(writer):
-    video = cv2.VideoCapture(1)
+def detectByCamera(cam):
+    video = cv2.VideoCapture(cam)
     print('Detecting people...')
     while True:
         check, frame = video.read()
-        frame = detect(frame)
-#        if writer is not None:
-#            writer.write(frame)
+        detect(frame)
         key = cv2.waitKey(1)
         if key == ord('q'):
             break
     video.release()
     cv2.destroyAllWindows()
 
-def detectByPathImage(path, output_path):
+def detectByPathImage(path):
     image = cv2.imread(path)
     image = imutils.resize(image, width = min(800, image.shape[1]))
     result_image = detect(image)
-    if output_path is not None:
-        cv2.imwrite(output_path, result_image)
+    cv2.imwrite(out_img, result_image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 
-def detectByPathVideo(path, writer):
+def detectByPathVideo(path):
     video = cv2.VideoCapture(path)
     check, frame = video.read()
     if check == False:
@@ -56,10 +54,7 @@ def detectByPathVideo(path, writer):
         check, frame = video.read()
         if check:
             frame = imutils.resize(frame, width=min(800, frame.shape[1]))
-            frame = detect(frame)
-
-            if writer is not None:
-                writer.write(frame)
+            detect(frame)
 
             key = cv2.waitKey(1)
             if key == ord('q'):
